@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey, create_engine, UniqueConstraint, PrimaryKeyCo
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger
 from sqlalchemy.dialects.mysql import LONGTEXT, TINYINT
 from sqlalchemy.orm import sessionmaker, relationship
-from .config import SQLURL, SQLDEBUG
+from . import config
 
 # 实体基类
 Base = declarative_base()
@@ -31,7 +31,7 @@ class Post(Base):
     title = Column(String(250), nullable=False)
     postdate = Column(DateTime, nullable=False)
     author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    hist = Column(BigInteger, nullable=False, default=0)
+    hits = Column(BigInteger, nullable=False, default=0)
 
     author = relationship('User')
     content = relationship('Content', uselist=False)
@@ -99,7 +99,7 @@ class Post_tag(Base):
     tag = relationship('Tag')
 
 
-engine = create_engine(SQLURL, echo=SQLDEBUG)
+engine = create_engine(config.SQLURL, echo=config.SQLDEBUG)
 
 
 def createalltables(tables=None):

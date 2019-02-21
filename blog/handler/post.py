@@ -60,7 +60,7 @@ def get(ctx, request: PigWeb.Request):
     if not post:
         raise exc.HTTPNotFound()
 
-    post.hist += 1
+    post.hits += 1
     session.add(post)
     try:
         session.commit()
@@ -78,7 +78,7 @@ def get(ctx, request: PigWeb.Request):
         'title': post.title,
         'postdate': post.postdate.timestamp(),
         'content': post.content.content
-    }, diginfo=dig_info, buryinfo=bury_info)
+    }, diginfo=dig_info, buryinfo=bury_info, tags = tags)
 
 
 def get_diginfo(post_id):
@@ -99,7 +99,7 @@ def get_diginfo(post_id):
 
 @post_router.get('/')
 @post_router.get('/u/{id:int}')
-@post_router.get('/u/{tag:str}')
+@post_router.get('/t/{tag:str}')
 def list(ctx, request: PigWeb.Request):
     # try:
     #     page = request.params.get('page', 1)
@@ -122,21 +122,21 @@ def list(ctx, request: PigWeb.Request):
     query = session.query(Post)
 
     try:
-        user_id = validate({'id':request.vars.id}, 'id', int, -1, lambda x, y: x if 0 < x else y)
+        user_id = validate({'id':request.vars.id}, 'id', int, -1, lambda x, y: x if x > 0 else y)
     except:
         user_id = -1
     if user_id > 0:
         query = query.filter(Post.author_id == user_id)
 
     try:
-        tagname = validate({'tag':request.vars.tag}, 'tag', str, "", lambda x,y:x if len(x) > 0 else y)
+        tagname = validate({'tag':request.vars.tag}, 'tag', str, "", lambda x,y:x if len(x) else y)
     except:
         tagname = ""
     if tagname:
         query = query.join(Post_tag).join(Tag).filter(Tag.tag == tagname)
 
-
     count = query.count()  # 总记录数
+
     posts = query.order_by(Post.id.desc()).limit(size).offset(size * (page - 1)).all()
 
     # 分页pagination

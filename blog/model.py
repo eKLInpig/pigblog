@@ -83,7 +83,7 @@ class Dig(Base):
 class Tag(Base):
     __tablename__ = "tag"
 
-    id = Column(BigInteger, Primary_Key=True, autoincrement=True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     tag = Column(String(16), nullable=False, unique=True)
 
 

@@ -99,6 +99,7 @@ def get_diginfo(post_id):
 
 @post_router.get('/')
 @post_router.get('/u/{id:int}')
+@post_router.get('/u/{tag:str}')
 def list(ctx, request: PigWeb.Request):
     # try:
     #     page = request.params.get('page', 1)
@@ -126,6 +127,14 @@ def list(ctx, request: PigWeb.Request):
         user_id = -1
     if user_id > 0:
         query = query.filter(Post.author_id == user_id)
+
+    try:
+        tagname = validate({'tag':request.vars.tag}, 'tag', str, "", lambda x,y:x if len(x) > 0 else y)
+    except:
+        tagname = ""
+    if tagname:
+        query = query.join(Post_tag).join(Tag).filter(Tag.tag == tagname)
+
 
     count = query.count()  # 总记录数
     posts = query.order_by(Post.id.desc()).limit(size).offset(size * (page - 1)).all()

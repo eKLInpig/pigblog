@@ -145,7 +145,7 @@ class _Router:
 
         for methods, pattern, translator, handler in self.__routetable:
             if not methods or request.method in methods:
-                matcher = pattern.match(request.path.replace(self.prefix, "", 1))
+                matcher = pattern.match(request.path_info.replace(self.prefix, "", 1))
                 if matcher:
                     # request.args = matcher.group()  # 所有分组
                     # request.kwargs = DictObj(matcher.groupdict())  # 所有的命名的分组
